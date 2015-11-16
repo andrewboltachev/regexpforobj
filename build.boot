@@ -8,13 +8,35 @@
                   [ns-tracker "0.2.2"]
                   [adzerk/boot-reload        "0.2.6"]
                   [fipp "0.5.2"]
+                  [adzerk/bootlaces          "0.1.10"]
                   ]
   :source-paths    #{"src"}
   )
 
+
+(require '[adzerk.bootlaces :refer :all])
+
+(def +version+ "1.0.0-alpha2-SNAPSHOT")
+
+(bootlaces! +version+)
+
+(task-options!
+  pom  {:project     'hoplon
+        :version     +version+
+        :description "Objectified regular expressions parser library."
+        ;:url         ""
+        ;:scm         {:url ""}
+        :license     {"Eclipse Public License" "http://www.eclipse.org/legal/epl-v10.html"}})
+
+
 (use '[ns-tracker.core :only [ns-tracker]])
 (require '[adzerk.boot-reload :refer [reload]])
 (require '[regexpforobj.core])
+
+
+
+
+
 
 (deftask wrap-reload
   "Reload namespaces of modified files before the request is passed to the
