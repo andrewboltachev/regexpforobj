@@ -55,16 +55,7 @@
         (require ns-sym :reload))
       (handler request)))))
 
-(deftask main
-  []
-  (with-pre-wrap fileset
-    (regexpforobj.core/main)
-    fileset
-    )
-  )
-
-
-(deftask dev
+#_(deftask dev
   "Development loop"
   []
   (comp
