@@ -21,7 +21,7 @@
 (bootlaces! +version+)
 
 (task-options!
-  pom  {:project     'hoplon
+  pom  {:project     'regexpforobj
         :version     +version+
         :description "Objectified regular expressions parser library."
         ;:url         ""
