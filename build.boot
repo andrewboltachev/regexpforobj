@@ -32,8 +32,14 @@
 (use '[ns-tracker.core :only [ns-tracker]])
 (require '[adzerk.boot-reload :refer [reload]])
 (require '[regexpforobj.core])
+(require '[regexpforobj.main])
 
 
+(deftask main []
+  (with-pre-wrap fileset
+    (regexpforobj.main/main)
+    fileset)
+  )
 
 
 
@@ -55,7 +61,7 @@
         (require ns-sym :reload))
       (handler request)))))
 
-#_(deftask dev
+(deftask dev
   "Development loop"
   []
   (comp
