@@ -8,7 +8,7 @@
 (require '[fipp.edn :refer (pprint) :rename {pprint fipp}])
 (def s1 (Seq [(Char "ref") (Star (Char "ref"))]))
 (def c1 (Seq [(Char 'x) (Star (Char 'x))]))
-(def r1 [(Seq [(Char 'x) (Star (Char 'x))]) (Plus 'x)])
+(def r1 [(Seq ['x (Star 'x)]) (Plus 'x)])
 
 
 (def s2 (Seq [
@@ -21,14 +21,14 @@
                 )]))
 
 (def s3 (Seq [
-              (Char "ref")
+              ;(Char "ref")
               ;(Seq [(Char "ref")])
-              ;1
+              1
               
               (Star
-                (Char "ref")
+                ;(Char "ref")
                 ;(Seq [(Char "ref")])
-                ;1
+                1
                 )]))
 
 (defn ifipp [x]
@@ -110,15 +110,15 @@
                                 )
 
                       (symbol? v1)
-                      (assoc bindings v1 (nth v))
+                      (do
+                        (println "this" v)
+                      (assoc bindings v1 (nth v i))
+                        )
                       
 
                       :else
-                      (do
-                        (println (nth v) v1)
-                      (when (= (nth v) v1)
+                      (when (= (nth v i) v1)
                         bindings
-                        )
                         )
                       )
                     )
@@ -174,7 +174,7 @@
 (defn structure-conforms-to [pattern s]
   ;...
   (let [pattern (add-routes-to-grammar pattern)]
-    ;(fipp pattern)
+   (fipp pattern)
     (structure-conforms-to2 pattern s)
     )
   )
