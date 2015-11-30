@@ -246,6 +246,7 @@
     ;(structure-conforms-to c1 s1)
    ;(apply-rule r1 (apply-rule r1 s2))
 
-   (apply-rule1 r1 s3)
+   #_(apply-rule1 r1 s3)
+   1
    )
   )
