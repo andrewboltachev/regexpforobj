@@ -105,7 +105,7 @@
     )
   )
 
-#_(defn process [g x & [level]]
+(defn process [g x & [level]]
   (let [level (or level 0)
         process (fn [g x] (process g x (inc level)))
         ]
