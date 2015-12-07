@@ -266,7 +266,7 @@
           ]
       c2
       )
-    (structure-conforms-to
+    #_(structure-conforms-to
       c2
       s2
       )
@@ -281,8 +281,8 @@
                                   )))
                     ])
       )
-   ;(apply-rule r1 (apply-rule r1 s2))
+   #_(apply-rule r1 (apply-rule r1 s2))
 
-   ;(apply-rule1 r1 s3)
+   (apply-rule r1 s2)
    )
   )
