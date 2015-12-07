@@ -176,6 +176,7 @@
   )
 
 
+(t/ann is_parsing_error? [t/Any -> t/Bool])
 (defn is_parsing_error? [x]
   (or
     (and
@@ -184,6 +185,10 @@
     )
     (nil? x)
     )
+  )
+
+(defn map2? [x]
+  (map? x)
   )
 
 (t/defalias ProcessFuncOutput-type
@@ -231,9 +236,10 @@
       (if (empty? g1)
         [(SeqNode result (:payload g)) x1]
         ;(if-not (empty? x1)
-          (let [returned (process (first g1) x1 0)]
-            (if (is_parsing_error? returned)
-              returned
+          (let [returned (process1 (first g1) x1)]
+            (if
+              (map2? returned)
+              (assoc returned :a :b)
               (let [
                     new_v (first returned)
                     new_x (second returned)
@@ -252,8 +258,8 @@
       )
     ;(SeqNode [(process1 (first (:value g)) x)])
 
-    (= (:type g) :Or)
-    (t/loop [g1 :- (t/Vec Grammar-type), (:value g)
+    #_(= (:type g) :Or)
+    #_(t/loop [g1 :- (t/Vec Grammar-type), (:value g)
            result :- (t/Vec ProcessFuncOutput-type), []]
       (if (empty? g1)
         (let [r 
@@ -273,8 +279,8 @@
         )
       )
 
-    (= (:type g) :Star)
-    (loop [g1 (:value g)
+    #_(= (:type g) :Star)
+    #_(loop [g1 (:value g)
            x1 x
            result []]
       (let [r (process1 g1 x1)]
@@ -288,8 +294,8 @@
         )
       )
 
-    (= (:type g) :MayBe)
-    (let [r (process1 (:value g) x)]
+    #_(= (:type g) :MayBe)
+    #_(let [r (process1 (:value g) x)]
       (if (is_parsing_error? r)
         [(SeqNode [] (:payload g)) x]
         [(SeqNode (first r) (:payload g)) (last r)]
