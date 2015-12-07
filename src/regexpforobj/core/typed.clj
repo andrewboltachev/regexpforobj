@@ -1,14 +1,15 @@
 (ns regexpforobj.core.typed
-  (:use clojure.test)
+  ;(:use clojure.test)
   (:require [clojure.core.typed :as t])
   )
 
-
 (defmacro grammar-symbol [name]
-  `(defn ~name 
-     ([~'value & [~'payload]] {:type ~(keyword name) :value ~'value :payload ~'payload})
-     )
-  )
+  `(defn ~name    
+     ([~'value] (~name ~'value nil))
+     ([~'value ~'payload] {:type ~(keyword name) :value ~'value :payload ~'payload})
+     )            
+  ) 
+  
 
 (t/defalias Char-type
   (t/HMap
@@ -48,13 +49,11 @@
        (t/U
          Char-type
           (t/HMap
-            :mandatory {:value (t/HVec [x])
+            :mandatory {:value (t/Vec x)
             :payload t/Any
             :type (t/U
                     (t/Val :Seq)
                     (t/Val :Or)
-
-                    (t/Val :SeqNode)
                     )
             }
             :complete? true
@@ -73,25 +72,107 @@
        )
   )
 
-(grammar-symbol Char)
-#_(defn f [x]
-  (inc x)
-  )
 
+(t/ann Char (t/IFn
+                 [t/Any -> Char-type]
+                 [t/Any t/Any -> Char-type]
+                 ))
 (grammar-symbol Char)
+
+(t/ann Seq (t/IFn
+                 [(t/Vec Grammar-type) -> Grammar-type]
+                 [(t/Vec Grammar-type) t/Any -> Grammar-type]
+                 ))
 (grammar-symbol Seq)
+
+(t/ann Or (t/IFn
+                 [(t/Vec Grammar-type) -> Grammar-type]
+                 [(t/Vec Grammar-type) t/Any -> Grammar-type]
+                 ))
 (grammar-symbol Or)
+
+(t/ann Star (t/IFn
+                 [Grammar-type -> Grammar-type]
+                 [Grammar-type t/Any -> Grammar-type]
+                 ))
 (grammar-symbol Star)
+
+(t/ann MayBe (t/IFn
+                 [Grammar-type -> Grammar-type]
+                 [Grammar-type t/Any -> Grammar-type]
+                 ))
 (grammar-symbol MayBe)
 
-
 ; results
+
+(t/defalias InputChar-type
+  (t/HMap
+    :mandatory {:value t/Any
+     :payload t/Any
+     :type (t/Val :InputChar)
+     }
+    :complete? true
+    )
+  )
+
+(t/defalias InputStream-type
+  (t/Vec
+    InputChar-type
+    )
+  )
+
+(t/defalias Input-type
+  (t/Rec [x]
+       (t/U
+         InputChar-type
+          (t/HMap
+            :mandatory {:value (t/Vec x)
+            :payload 
+                        t/Any
+                        ;(t/Val nil)
+            :type 
+                    (t/Val :SeqNode)
+            }
+            :complete? true
+            )
+         )
+       )
+  )
+(t/ann InputChar (t/IFn
+                 [t/Any -> InputChar-type]
+                 [t/Any t/Any -> InputChar-type]
+                 ))
 (grammar-symbol InputChar)
+
+(t/ann SeqNode (t/IFn
+                 [(t/Vec Input-type) -> Input-type]
+                 [(t/Vec Input-type) t/Any -> Input-type]
+                 ))
 (grammar-symbol SeqNode)
 
+
+
+; =========================================
+
+
+
+(t/defalias ParsingError-type
+  (t/HMap
+    :mandatory {
+                 :error t/Keyword
+                 :context t/Any
+                 }
+     :complete? true
+    )
+  )
 ; errors
+(t/ann ParsingError (t/IFn
+         [t/Keyword -> ParsingError-type]
+         [t/Keyword t/Any -> ParsingError-type]
+         ))
 (defn ParsingError
-  ([n & [context]] {:error n :context context})
+  ([n] (ParsingError n nil))
+  ([n context] {:error n :context context})
   )
 
 
@@ -105,9 +186,27 @@
     )
   )
 
-(defn process [g x & [level]]
+(t/defalias ProcessFuncOutput-type
+  (t/U
+    (t/HVec [
+             Input-type
+             InputStream-type
+             ])
+    ParsingError-type
+    )
+  )
+
+(t/ann process (t/IFn
+                 [Grammar-type InputStream-type -> ProcessFuncOutput-type]
+                 [Grammar-type InputStream-type t/Int -> ProcessFuncOutput-type]
+                 ))
+(defn process
+  ([g x] (process g x 0))
+  ([g x level]
   (let [level (or level 0)
-        process (fn [g x] (process g x (inc level)))
+        process1 (t/fn [g :- Grammar-type
+                        x :- InputStream-type
+                        ] :- ProcessFuncOutput-type (process g x (inc level)))
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -117,7 +216,7 @@
                          (let [vc (:value c)
                                vg (:value g)]
                            (if (= vg vc)
-                             [c (rest x)]
+                             [c (vec (rest x))]
                              (ParsingError :char {:expected vg :found vc})
                              ))
                          (ParsingError :too-short-char {:rest g})
@@ -125,19 +224,25 @@
       )
 
     (= (:type g) :Seq)
-    (loop [g1 (:value g)
-           x1 x
-           result []]
+    (t/loop [g1 :- (t/Vec Grammar-type), (:value g)
+           x1 :- InputStream-type, x
+           result :- (t/Vec Input-type), []
+             ]
       (if (empty? g1)
         [(SeqNode result (:payload g)) x1]
         ;(if-not (empty? x1)
-          (let [returned (process (first g1) x1)]
+          (let [returned (process (first g1) x1 0)]
             (if (is_parsing_error? returned)
               returned
               (let [
-                    [new_v new_x] returned
+                    new_v (first returned)
+                    new_x (second returned)
                     ]
-                (recur (rest g1) new_x (conj result new_v))
+                (recur
+                  (vec (rest g1))
+                  new_x
+                  (vec (conj result new_v))
+                  )
                 )
               )
             )
@@ -145,11 +250,11 @@
           ;)
         )
       )
-    ;(SeqNode [(process (first (:value g)) x)])
+    ;(SeqNode [(process1 (first (:value g)) x)])
 
     (= (:type g) :Or)
-    (loop [g1 (:value g)
-           result []]
+    (t/loop [g1 :- (t/Vec Grammar-type), (:value g)
+           result :- (t/Vec ProcessFuncOutput-type), []]
       (if (empty? g1)
         (let [r 
                   (sort-by #(count (last %))
@@ -163,7 +268,7 @@
               )
             (ParsingError :or-fail)
           ))
-        (let [rr (process (first g1) x)]
+        (let [rr (process1 (first g1) x)]
           (recur (rest g1) (conj result rr)))
         )
       )
@@ -172,7 +277,7 @@
     (loop [g1 (:value g)
            x1 x
            result []]
-      (let [r (process g1 x1)]
+      (let [r (process1 g1 x1)]
         (if (is_parsing_error? r)
           (do
             ;(apply print (repeat level "\t"))
@@ -184,10 +289,11 @@
       )
 
     (= (:type g) :MayBe)
-    (let [r (process (:value g) x)]
+    (let [r (process1 (:value g) x)]
       (if (is_parsing_error? r)
         [(SeqNode [] (:payload g)) x]
         [(SeqNode (first r) (:payload g)) (last r)]
         )
         )
-  )))
+  ))))
+
