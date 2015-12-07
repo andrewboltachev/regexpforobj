@@ -8,6 +8,7 @@
 (require '[fipp.edn :refer (pprint) :rename {pprint fipp}])
 (def s1 (Seq [(Char "ref") (Star (Char "ref"))]))
 (def c1 (Seq [(Char 'x) (Star (Char 'x))]))
+(def c2 (Seq ['x (Star 'x)]))
 (def r1 [(Seq ['x (Star 'x)]) (Plus 'x)])
 
 
@@ -28,7 +29,7 @@
               (Star
                 ;(Char "ref")
                 ;(Seq [(Char "ref")])
-                1
+                2
                 )]))
 
 (defn ifipp [x]
@@ -97,7 +98,7 @@
                     (cond
                       (and (map? v1) (contains? v1 :type))
                       (do
-                        #_(doall (map println ["map inside sequence"
+                        (doall (map println ["map inside sequence"
                                 (:route v1)
                                             (grammar_pretty v1)
                                             (grammar_pretty s)
@@ -112,19 +113,20 @@
                       (symbol? v1)
                       (do
                         (println "this" v)
-                      (assoc bindings v1 (nth v i))
+                      (assoc bindings v1 (nth (:value v) i))
                         )
                       
 
                       :else
-                      (when (= (nth v i) v1)
+                      (when (= (nth (:value v) i) v1)
                         bindings
                         )
                       )
                     )
                   (:value pattern)
                   ))
-              _ (println "vm is" vm)
+              _ (println "vm is")
+              _ (fipp vm)
               vm1 (apply merge-with
                 (fn [va vb]
                   ;(println "comparing")
@@ -142,8 +144,17 @@
           )
 
         (and (map? (:value pattern)) (contains? (:value pattern) :type)
+             (do
+
+             (println "map inside map")
+             (println "pattern")
+             (println pattern)
+             (println "v")
+             (println v)
+1
+               )
              (=
-              (:type (:value pattern))
+              (:type pattern)
               (:type v)
               )
              
@@ -151,7 +162,19 @@
         (structure-conforms-to2 (:value pattern) s bindings)
 
         (symbol? (:value pattern))
-        (assoc bindings (:value pattern) v)
+        (do
+          #_(println "that's symbol, babe" pattern v)
+          #_(println  "ahaha"
+        (when
+          (= (:type pattern) (:type v))
+(assoc bindings (:value pattern) (:value v))
+             
+          ))
+        (when
+          (= (:type pattern) (:type v))
+          (assoc bindings (:value pattern) (:value v))
+             
+          ))
 
         :else
         (do
@@ -243,10 +266,23 @@
           ]
       c2
       )
-    ;(structure-conforms-to c1 s1)
+    (structure-conforms-to
+      c2
+      s2
+      )
+    #_(structure-conforms-to
+      (Seq
+                    ['x]
+                    )
+
+      (Seq [
+                    (Star (Star (Char
+                                  'x
+                                  )))
+                    ])
+      )
    ;(apply-rule r1 (apply-rule r1 s2))
 
-   #_(apply-rule1 r1 s3)
-   1
+   ;(apply-rule1 r1 s3)
    )
   )
