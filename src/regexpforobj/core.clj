@@ -342,3 +342,97 @@
 
 
 ;(time (run-tests 'zarnidict0005.grammar-checker))
+
+
+
+
+
+
+
+
+(defn positions [x coll]
+  (flatten (map-indexed #(if (= %2 x) [%1] []) coll)))
+
+(defn
+  tree-depth
+  [branch? children count-empty? root]
+  (let
+   [walk
+    (fn
+      walk
+      [node]
+      (if
+       (branch? node)
+        (let
+         [children (children node)]
+          (if
+           (empty? children)
+            (if count-empty? 1 0) 
+            (inc (reduce max (map walk children)))))
+        0))]
+    (walk root)))
+
+
+
+(defn get_pos [x variants]
+  (first (positions x variants)))
+
+(defn replace_subst [first_one data]
+  (map
+   (fn [[depth item]]
+     [depth (clojure.walk/postwalk
+             (fn [x]
+               (let [pos (get_pos x (last first_one))]
+                 (if (nil? pos)
+                   x
+                   (symbol (str "s" (first first_one) "-" pos))
+                   )))
+             item)])
+   data))
+
+(defn nodes_for_my_fold [nodes]
+  ;(println (class x) (coll? x))
+  (let [branch? (fn [x] (map? x)) ; coll?
+        children (fn [x] (let [v (:value x)] (if (and (coll? v) (not (map? v))) v [v]))) ;(fn [c] ((if (map? c) :value seq) c))
+        tree-depth-func #(tree-depth branch? children true %)
+        max_depth (tree-depth-func nodes)
+        attach-depth #(map (fn [subtree] {:el subtree :depth (tree-depth-func subtree)}) %)]
+        (let [this-seq (tree-seq branch? children nodes)
+              depth-attached (attach-depth (distinct this-seq))
+              freqs (frequencies this-seq)
+              freq-for #(get freqs %)
+              attach-freq #(map (fn [x] (assoc x :freq (freq-for (:el x)))) %)
+
+              stuff-attached (attach-freq depth-attached)
+              filtered (filter #(or (and (> (:freq %) 1) (> (:depth %) 1)) (= (:depth %) max_depth)) stuff-attached)]
+          (sort-by first (map (fn [[d els]] [d (map :el els)]) (seq (group-by :depth filtered)))))
+    )
+  )
+
+(defn my_fold_nodes [nodes]
+    (loop [nodes nodes
+           result []]
+      (if-not (empty? nodes)
+        (do
+          (let [first_one (first nodes)]
+            (recur
+             (let [x00
+                   (replace_subst first_one (rest nodes))]
+                ;(println (first first_one))
+                ;(println (class x00))
+                ;(println)
+               x00
+                ;(rest nodes)
+               )
+             (conj result first_one))))
+        result)))
+
+
+(defn my_fold [nodes]
+  (my_fold_nodes (nodes_for_my_fold nodes))
+  )
+
+(defn make_let [data]
+  (let [w (mapcat (fn [[d v]] (map-indexed #(do [(symbol (str "s" d "-" %1)) %2]) v)) data)
+        s (list 'let (vec (mapcat identity w)))]
+    (concat s [(first (last w))])))
