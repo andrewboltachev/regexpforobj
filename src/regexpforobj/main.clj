@@ -80,6 +80,7 @@
   )
 
 (defn structure-conforms-to2 [pattern s & [bindings]]
+  ; TODO использовать метаданные для сохранения маршрутов веток дерева
   ;...
   (let [bindings (or bindings {})
         ;_ (println bindings)
