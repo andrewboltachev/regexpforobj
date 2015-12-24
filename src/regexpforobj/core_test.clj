@@ -1,5 +1,7 @@
-(ns regexpforobj.core_test)
-#?(:clj
+(ns regexpforobj.core_test
+  (:use clojure.test)
+  (:use regexpforobj.core)
+  )
   (defmacro test_run_func1 [n g x y]
     (deftest n
       (is (= 
@@ -180,7 +182,6 @@
     []
     (SeqNode [] {:a 1 :b 2})
     )
-  )
 
 
 
