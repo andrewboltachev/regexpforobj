@@ -10,6 +10,7 @@
                   [fipp "0.5.2"]
                   [adzerk/bootlaces          "0.1.10"]
                   [org.clojure/core.typed "0.3.18"]
+                  [aprint "0.1.3"]
                   ]
   :source-paths    #{"src"}
   )
