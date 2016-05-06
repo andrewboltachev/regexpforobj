@@ -261,7 +261,7 @@
 
 (def x [(InputChar "x") (InputChar "x") (InputChar "L") (InputChar "x")])
 
-(def gl (-> (let [x  (Char "x")] (Or [(Star x) (Star (Seq [(Char "L") (Star x)]))])) my_fold))
+(def gl (-> (let [x  (Char "x")] (Or [(Star x :star-1) (Star (Seq [(Char "L") (Star x :star-1)] :seq-1) :star-2)] :or-1)) my_fold))
 
 (defn
  apply-one-level
@@ -280,10 +280,31 @@
    (if
     (some? h)
     (let
-     [[rph rpr :as rp] (process g l) success (-> rph empty? not)]
+     [[rph rpr :as rp] (process g l) success (-> rph empty? not)
+      
+      ;_ (println rp)
+      ]
      (if
       success
-      (concat b [(InputChar level-name rph)] rpr)
+              (if-not (= rpr l)
+      (concat b [(InputChar level-name rph)]
+              (do
+                ;(println "111" rp)
+              (apply-one-level
+                level-name
+                g
+                rpr)
+                )
+                )
+                (if (empty? rpr) rpr
+                  (cons (first rpr)
+                          (apply-one-level
+                            level-name
+                            g
+                            (rest rpr)
+                          )
+                  ))
+              )
       (recur t (conj r rp) (conj b h))))
     x))
   vec)]
@@ -312,7 +333,7 @@
 
 (defn main []
   (
-   fipp
+   fipp (grammar_pretty
    ;identity
     #_(let [c2 (add-routes-to-grammar c1)
           ]
@@ -347,21 +368,11 @@
        t
        (reduce
        (fn [current-input [i rule]]
-         (let [level-name (symbol (str "s" level-index "-" i))]
-           (loop [this-input current-input
-                  last-input nil]
-             (if (or (nil? last-input) (not= last-input this-input))
-               (recur 
-           (apply-one-level
-             level-name
-             ; ...
-             rule
-             this-input
-             )
-                 this-input
-             )
-               this-input
-             ))
+          (apply-one-level
+            (symbol (str "s" level-index "-" i))
+            ; ...
+            rule
+            current-input
            )
          )
        input
@@ -373,4 +384,5 @@
        )
      )
    )
+  )
   )
