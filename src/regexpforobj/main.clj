@@ -261,7 +261,9 @@
 
 (def x [(InputChar "x") (InputChar "x") (InputChar "L") (InputChar "x")])
 
-(def gl (-> (let [x  (Char "x")] (Or [(Star x :star-1) (Star (Seq [(Char "L") (Star x :star-1)] :seq-1) :star-2)] :or-1)) my_fold))
+(def g (let [x  (Char "x")] (Or [(Star x :star-1) (Star (Seq [(Char "L") (Star x :star-1)] :seq-1) :star-2)] :or-1))
+  )
+
 
 (defn
  apply-one-level
@@ -331,33 +333,8 @@
 
 (def glc (symbol-to-c gl))
 
-(defn main []
-  (
-   fipp (grammar_pretty
-   ;identity
-    #_(let [c2 (add-routes-to-grammar c1)
-          ]
-      c2
-      )
-    #_(structure-conforms-to
-      c2
-      s2
-      )
-    #_(structure-conforms-to
-      (Seq
-                    ['x]
-                    )
-
-      (Seq [
-                    (Star (Star (Char
-                                  'x
-                                  )))
-                    ])
-      )
-   #_(apply-rule r1 (apply-rule r1 s2))
-
-   #_(apply-rule r1 s2)
-   ;(subvec glc 0 1)
+(defn run2 [g x]
+  (let [glc (-> g my_fold symbol-to-c)]
    (loop [
           [[level-index rules :as h] & t] glc
           input x
@@ -385,4 +362,34 @@
      )
    )
   )
+
+(defn main []
+  (
+   fipp (grammar_pretty
+   ;identity
+    #_(let [c2 (add-routes-to-grammar c1)
+          ]
+      c2
+      )
+    #_(structure-conforms-to
+      c2
+      s2
+      )
+    #_(structure-conforms-to
+      (Seq
+                    ['x]
+                    )
+
+      (Seq [
+                    (Star (Star (Char
+                                  'x
+                                  )))
+                    ])
+      )
+   #_(apply-rule r1 (apply-rule r1 s2))
+
+   #_(apply-rule r1 s2)
+   ;(subvec glc 0 1)
+          (run2 g x)
+  ))
   )
