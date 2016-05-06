@@ -331,8 +331,6 @@
   ) ;; TODO: you know what to do. this is just cheating so far
 
 
-(def glc (symbol-to-c gl))
-
 (defn run2 [g x]
   (let [glc (-> g my_fold symbol-to-c)]
    (loop [
