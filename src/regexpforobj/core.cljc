@@ -13,9 +13,9 @@
     (enable-console-print!))
 
 ; grammar
-(defmacro grammar-symbol [name]
-  `(defn ~name 
-     ([~'value & [~'payload]] {:type ~(keyword name) :value ~'value :payload ~'payload})
+(defmacro grammar-symbol [name_]
+  `(defn ~name_
+     ([~'value & [~'payload]] {:type ~(keyword name_) :value ~'value :payload ~'payload})
      )
   )
 
@@ -34,7 +34,7 @@
 
 ; errors
 (defn ParsingError
-  ([name & [context]] {:error name :context context})
+  ([name_ & [context]] {:error name_ :context context})
   )
 
 

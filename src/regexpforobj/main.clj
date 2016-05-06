@@ -259,6 +259,57 @@
   )
   )
 
+(def x [(InputChar "x") (InputChar "x") (InputChar "L") (InputChar "x")])
+
+(def gl (-> (let [x  (Char "x")] (Or [(Star x) (Star (Seq [(Char "L") (Star x)]))])) my_fold))
+
+(defn
+ apply-one-level
+ [level-name g x]
+  (println level-name \newline
+           (grammar_pretty g)
+           \newline
+           (grammar_pretty x)
+           \newline
+           \newline
+           \newline
+           )
+ (do (let [r (->
+  (loop
+   [[h & t :as l] x r [] b []]
+   (if
+    (some? h)
+    (let
+     [[rph rpr :as rp] (process g l) success (-> rph empty? not)]
+     (if
+      success
+      (concat b [(InputChar level-name rph)] rpr)
+      (recur t (conj r rp) (conj b h))))
+    x))
+  vec)]
+     (println r)
+     (newline)
+
+     r)
+  
+  ))
+
+
+(defn symbol-to-c [gl]
+  (clojure.walk/postwalk
+    (fn [x]
+      (if (symbol? x)
+        (Char x)
+        x
+        )
+      )
+    gl
+    )
+  ) ;; TODO: you know what to do. this is just cheating so far
+
+
+(def glc (symbol-to-c gl))
+
 (defn main []
   (
    fipp
@@ -284,6 +335,42 @@
       )
    #_(apply-rule r1 (apply-rule r1 s2))
 
-   (apply-rule r1 s2)
+   #_(apply-rule r1 s2)
+   ;(subvec glc 0 1)
+   (loop [
+          [[level-index rules :as h] & t] glc
+          input x
+          ]
+     ; ...
+     (if (some? h)
+     (recur
+       t
+       (reduce
+       (fn [current-input [i rule]]
+         (let [level-name (symbol (str "s" level-index "-" i))]
+           (loop [this-input current-input
+                  last-input nil]
+             (if (or (nil? last-input) (not= last-input this-input))
+               (recur 
+           (apply-one-level
+             level-name
+             ; ...
+             rule
+             this-input
+             )
+                 this-input
+             )
+               this-input
+             ))
+           )
+         )
+       input
+       (map-indexed (fn [a b] [a b]) rules)
+     )
+       )
+        
+       input
+       )
+     )
    )
   )
