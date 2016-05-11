@@ -86,14 +86,14 @@
                              "g"
                              \newline
                              (with-out-str
-                               (aprint (map grammar_pretty g))
+                               (aprint (grammar_pretty g))
                                )
                              )
                     (println font/blue-font
                              "x"
                              \newline
                              (with-out-str
-                               (aprint (map grammar_pretty x))
+                               (aprint (grammar_pretty x))
                                )
                              font/reset-font)
                     (println font/red-font
