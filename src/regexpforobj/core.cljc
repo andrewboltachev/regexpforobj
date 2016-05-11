@@ -13,9 +13,9 @@
      (require
       '[io.aviso.ansi :as font]
        )
-      (use 'aprint.core)
     )
 
+      (use 'aprint.core)
 #?(:cljs
     (enable-console-print!))
 
