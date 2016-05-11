@@ -11,6 +11,7 @@
                   [adzerk/bootlaces          "0.1.10"]
                   [org.clojure/core.typed "0.3.18"]
                   [aprint "0.1.3"]
+                  [io.aviso/pretty "0.1.24"]
                   ]
   :source-paths    #{"src"}
   )
