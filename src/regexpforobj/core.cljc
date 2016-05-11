@@ -69,9 +69,24 @@
                m
                ))
 
-(defn process [g x & [level]]
+(defmacro memofn
+  [name args & body]
+  `(let [cache# (atom {})]
+     (fn ~name [& args#]
+       (let [update-cache!# (fn update-cache!# [state# args#]
+                              (if-not (contains? state# args#)
+                                (assoc state# args#
+                                       (delay
+                                         (let [~args args#]
+                                           ~@body)))
+                                state#))]
+         (let [state# (swap! cache# update-cache!# args#)]
+           (-> state# (get args#) deref))))))
+
+
+(def process (memofn process [g x & [level]]
   (let [level (or level 0)
-        process (fn [g x] (process g x (inc level)))
+        process (fn [g x] (process g x (inc level) process))
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -154,7 +169,8 @@
         [(SeqNode (first r) (:payload g)) (last r)]
         )
         )
-  )))
+  ))))
+
 
 (defn run [g x]
   (let [returned (process g x)]
