@@ -81,6 +81,7 @@
         process (fn [g x] (process g x (inc level)))
         process (fn [& args]
                   (let [result (apply process args)]
+#?(:clj
                     (println font/blue-font
                              (with-out-str
                                (aprint (map grammar_pretty args))
@@ -92,6 +93,8 @@
                                )
                              font/reset-font)
                     )
+                    result
+                             )
                   )
         ]
   ;(apply print (repeat level "\t"))
