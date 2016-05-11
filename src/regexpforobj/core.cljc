@@ -86,13 +86,11 @@
                              (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
                                )
-                             font/reset-font)
-                    (println font/blue-font
+                             font/blue-font
                              (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
                                )
-                             font/reset-font)
-                    (println font/red-font
+                            font/red-font
                              (with-out-str
                                (clojure.pprint/pprint (grammar_pretty result))
                                )
