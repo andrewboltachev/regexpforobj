@@ -83,24 +83,18 @@
                   (let [result (process g x)]
 #?(:clj
                     (println font/green-font
-                             "g"
-                             \newline
                              (with-out-str
-                               (aprint (grammar_pretty g))
+                               (pprint (grammar_pretty g))
                                )
-                             )
+                             font/reset-font)
                     (println font/blue-font
-                             "x"
-                             \newline
                              (with-out-str
-                               (aprint (grammar_pretty x))
+                               (pprint (grammar_pretty x))
                                )
                              font/reset-font)
                     (println font/red-font
-                             "r"
-                             \newline
                              (with-out-str
-                               (aprint (grammar_pretty result))
+                               (pprint (grammar_pretty result))
                                )
                              font/reset-font)
                     )
