@@ -84,17 +84,17 @@
 #?(:clj
                     (println font/green-font
                              (with-out-str
-                               (pprint (grammar_pretty g))
+                               (clojure.pprint/pprint (grammar_pretty g))
                                )
                              font/reset-font)
                     (println font/blue-font
                              (with-out-str
-                               (pprint (grammar_pretty x))
+                               (clojure.pprint/pprint (grammar_pretty x))
                                )
                              font/reset-font)
                     (println font/red-font
                              (with-out-str
-                               (pprint (grammar_pretty result))
+                               (clojure.pprint/pprint (grammar_pretty result))
                                )
                              font/reset-font)
                     )
