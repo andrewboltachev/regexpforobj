@@ -79,15 +79,26 @@
 (defn process [g x & [level]]
   (let [level (or level 0)
         process (fn [g x] (process g x (inc level)))
-        process (fn [& args]
-                  (let [result (apply process args)]
+        process (fn [g x]
+                  (let [result (process g x)]
 #?(:clj
-                    (println font/blue-font
+                    (println font/green-font
+                             "g"
+                             \newline
                              (with-out-str
-                               (aprint (map grammar_pretty args))
+                               (aprint (map grammar_pretty g))
+                               )
+                             )
+                    (println font/blue-font
+                             "x"
+                             \newline
+                             (with-out-str
+                               (aprint (map grammar_pretty x))
                                )
                              font/reset-font)
                     (println font/red-font
+                             "r"
+                             \newline
                              (with-out-str
                                (aprint (grammar_pretty result))
                                )
