@@ -5,12 +5,16 @@
 
      :clj
       (:use clojure.test)
-     (:require
-      (io.aviso.ansi :as font)
-       )
       )
   )
 
+
+#?(:clj
+
+     (require
+      '[io.aviso.ansi :as font]
+       )
+    )
 
 #?(:cljs
     (enable-console-print!))
