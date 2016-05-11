@@ -26,6 +26,7 @@
      )
   )
 
+(def ^:dynamic *regexpforobj-debug1* false)
 
 (grammar-symbol Char)
 (grammar-symbol Seq)
@@ -82,7 +83,8 @@
         process (fn [g x]
                   (let [result (process g x)]
 #?(:clj
-                    (println font/green-font
+                    (when *regexpforobj-debug1*
+                      (println font/green-font
                              (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
                                )
@@ -95,6 +97,7 @@
                                (clojure.pprint/pprint (grammar_pretty result))
                                )
                              font/reset-font)
+                      )
                     )
                     result
                              )
