@@ -268,7 +268,7 @@
 (defn
  apply-one-level
  [level-name g x]
-  #_(println level-name \newline
+  (println level-name \newline
            (grammar_pretty g)
            \newline
            (grammar_pretty x)
@@ -310,8 +310,8 @@
       (recur t (conj r rp) (conj b h))))
     x))
   vec)]
-     ;(println r)
-     ;(newline)
+     (println r)
+     (newline)
 
      r)
   
