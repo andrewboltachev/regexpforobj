@@ -10,10 +10,10 @@
 
 
 #?(:clj
-
      (require
       '[io.aviso.ansi :as font]
        )
+      (use 'aprint.core)
     )
 
 #?(:cljs
