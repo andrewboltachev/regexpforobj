@@ -167,7 +167,7 @@
     (= (:type g) :Star)
     (if
       (empty? x)
-      [(SeqNode [] (:payload g)) x1]
+      [(SeqNode [] (:payload g)) x]
       (loop [g1 (:value g)
             x1 x
             result []]
