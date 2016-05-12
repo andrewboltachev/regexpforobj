@@ -78,12 +78,8 @@
                ))
 
 (defn process [g x & [level]]
-  (let [level (or level 0)
-        process (fn [g x] (process g x (inc level)))
-        process (fn [g x]
-                  (let [result (process g x)]
-#?(:clj
-                    (when *regexpforobj-debug1*
+  (let [
+        _ (when *regexpforobj-debug1*
                       (println font/green-font
                              (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
@@ -92,16 +88,11 @@
                              (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
                                )
-                            font/red-font
-                             (with-out-str
-                               (clojure.pprint/pprint (grammar_pretty result))
                                )
-                             font/reset-font)
                       )
-                    )
-                    result
-                             )
-                  )
+        result 
+  (let [level (or level 0)
+        process (fn [g x] (process g x (inc level)))
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -184,7 +175,17 @@
         [(SeqNode (first r) (:payload g)) (last r)]
         )
         )
-  )))
+  ))]
+(when *regexpforobj-debug1*
+(println 
+                            font/red-font
+                             (with-out-str
+                               (clojure.pprint/pprint (grammar_pretty result))
+                               )
+                             font/reset-font)
+  )
+result
+))
 
 (defn run [g x]
   (let [returned (process g x)]
