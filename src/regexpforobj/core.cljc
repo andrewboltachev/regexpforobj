@@ -170,9 +170,10 @@
       [(SeqNode [] (:payload g)) x]
       (loop [g1 (:value g)
             x1 x
-            result []]
+            result []
+             ]
         (let [r (process g1 x1)]
-          (if (or (empty? x1) (is_parsing_error? r))
+          (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
             (do
               ;(apply print (repeat level "\t"))
               ;(println "star error1" r x1 (:payload g))
