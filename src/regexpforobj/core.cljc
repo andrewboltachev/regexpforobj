@@ -172,7 +172,7 @@
             x1 x
             result []]
         (let [r (process g1 x1)]
-          (if (is_parsing_error? r)
+          (if (or (empty? x1) (is_parsing_error? r))
             (do
               ;(apply print (repeat level "\t"))
               ;(println "star error1" r x1 (:payload g))
