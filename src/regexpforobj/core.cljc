@@ -80,7 +80,7 @@
 (defn process [g x & [level]]
   (let [
         level-ident (apply str (repeat level " "))
-        add-ident (fn [lines] (clojure.string/join \newline (map (fn [line] (str level-ident line)) (split-lines lines))))
+        add-ident (fn [lines] (clojure.string/join \newline (map (fn [line] (str level-ident line)) (clojure.string/split-lines lines))))
         _ (when *regexpforobj-debug1*
                       (println font/green-font
                              (add-ident (with-out-str
