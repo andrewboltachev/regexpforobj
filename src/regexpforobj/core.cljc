@@ -165,16 +165,20 @@
       )
 
     (= (:type g) :Star)
-    (loop [g1 (:value g)
-           x1 x
-           result []]
-      (let [r (process g1 x1)]
-        (if (is_parsing_error? r)
-          (do
-            ;(apply print (repeat level "\t"))
-            ;(println "star error1" r x1 (:payload g))
-            [(SeqNode result (:payload g)) x1])
-          (recur g1 (last r) (conj result (first r)))
+    (if
+      (empty? x)
+      [(SeqNode [] (:payload g)) x1]
+      (loop [g1 (:value g)
+            x1 x
+            result []]
+        (let [r (process g1 x1)]
+          (if (is_parsing_error? r)
+            (do
+              ;(apply print (repeat level "\t"))
+              ;(println "star error1" r x1 (:payload g))
+              [(SeqNode result (:payload g)) x1])
+            (recur g1 (last r) (conj result (first r)))
+            )
           )
         )
       )
