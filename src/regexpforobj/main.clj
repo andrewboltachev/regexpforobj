@@ -388,6 +388,11 @@
 
    #_(apply-rule r1 s2)
    ;(subvec glc 0 1)
-          (run2 g x)
+          ;(run2 g x)
+          (binding [*regexpforobj-debug1* true]
+          (run (Seq [(Char "a") (Char "b") (Char "c")])
+               [(InputChar "a") (InputChar "b") (InputChar "c")]
+               )
+            )
   ))
   )

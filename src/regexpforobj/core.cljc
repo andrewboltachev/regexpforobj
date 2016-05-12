@@ -78,22 +78,30 @@
                ))
 
 (defn process [g x & [level]]
-  (let [
-        level-ident (apply str (repeat level " "))
-        add-ident (fn [lines] (clojure.string/join "\n" (map (fn [line] (str level-ident line)) (clojure.string/split-lines lines))))
+  (let [level (or level 0)
+        level-ident (apply str (repeat (* level 4) " "))
+        add-ident (fn [lines]
+                    (clojure.string/join "\n" (map (fn [line] (str level-ident
+                                                                   (clojure.string/trim line)
+                                                                   ))
+                                                   (clojure.string/split lines #"\n" -1)
+                                                   ))
+                    )
         _ (when *regexpforobj-debug1*
                       (println font/green-font
                              (add-ident (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
                                ))
+                               "\n"
                              font/blue-font
                              (add-ident (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
                                ))
+                               font/reset-font
                                )
                       )
         result 
-  (let [level (or level 0)
+  (let [
         process (fn [g x] (process g x (inc level)))
         ]
   ;(apply print (repeat level "\t"))
