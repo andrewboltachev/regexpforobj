@@ -79,15 +79,17 @@
 
 (defn process [g x & [level]]
   (let [
+        level-ident (apply str (repeat level " "))
+        add-ident (fn [lines] (clojure.string/join \newline (map (fn [line] (str level-ident line)) (split-lines lines))))
         _ (when *regexpforobj-debug1*
                       (println font/green-font
-                             (with-out-str
+                             (add-ident (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
-                               )
+                               ))
                              font/blue-font
-                             (with-out-str
+                             (add-ident (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
-                               )
+                               ))
                                )
                       )
         result 
@@ -179,9 +181,9 @@
 (when *regexpforobj-debug1*
 (println 
                             font/red-font
-                             (with-out-str
+                             (add-ident (with-out-str
                                (clojure.pprint/pprint (grammar_pretty result))
-                               )
+                               ))
                              font/reset-font)
   )
 result
