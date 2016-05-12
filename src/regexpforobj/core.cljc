@@ -78,27 +78,28 @@
                ))
 
 (defn process [g x & [level]]
-  (let [level (or level 0)
-        level-ident (apply str (repeat (* level 4) " "))
-        add-ident (fn [lines]
-                    (clojure.string/join "\n" (map (fn [line] (str level-ident
+  (let [colored true
+        level (or level 0)
+        level-ident (apply str (repeat (* (inc level) 4) " "))
+        print-with-level-ident (fn [color lines]
+                    (doall (map println
+                                                   (filter #(-> % empty? not)
+                                                      (map (fn [line] (str (when colored color)
+                                                                   (inc level)
+                                                                   level-ident
                                                                    (clojure.string/trim line)
+                                                                   (when colored font/reset-font)
                                                                    ))
-                                                   (clojure.string/split lines #"\n" -1)
-                                                   ))
+                                                   (clojure.string/split-lines lines)
+                                                   ))))
                     )
         _ (when *regexpforobj-debug1*
-                      (println font/green-font
-                             (add-ident (with-out-str
+                             (print-with-level-ident font/green-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
                                ))
-                               "\n"
-                             font/blue-font
-                             (add-ident (with-out-str
+                             (print-with-level-ident font/blue-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
                                ))
-                               font/reset-font
-                               )
                       )
         result 
   (let [
@@ -187,12 +188,9 @@
         )
   ))]
 (when *regexpforobj-debug1*
-(println 
-                            font/red-font
-                             (add-ident (with-out-str
+                             (print-with-level-ident font/red-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty result))
                                ))
-                             font/reset-font)
   )
 result
 ))
