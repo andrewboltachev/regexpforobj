@@ -6,7 +6,7 @@
   :version      "0.1.0-SNAPSHOT"
   :dependencies '[
                   [ns-tracker "0.2.2"]
-                  [adzerk/boot-reload        "0.2.6"]
+                  [adzerk/boot-reload        "0.4.11"]
                   [fipp "0.5.2"]
                   [adzerk/bootlaces          "0.1.10"]
                   [org.clojure/core.typed "0.3.18"]
