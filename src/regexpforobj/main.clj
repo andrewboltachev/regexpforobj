@@ -1,5 +1,8 @@
 (ns regexpforobj.main
-  (:use regexpforobj.core)
+  (:use
+    regexpforobj.core
+    regexpforobj.core.macros
+    )
   )
 
 

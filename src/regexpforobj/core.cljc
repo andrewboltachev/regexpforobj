@@ -5,10 +5,14 @@
                 [clojure.string]
                 [clojure.walk]
                 )
+     :clj
+     (:require
+       [regexpforobj.core.macros :refer [grammar-symbol]]
+       )
      )
   #?(
      :cljs
-     (:require-macros [regexpforobj.core :refer [grammar-symbol]])
+     (:require-macros [regexpforobj.core.macros :refer [grammar-symbol]])
 
      :clj
       (:use clojure.test)
@@ -28,13 +32,6 @@
 #?(:cljs
     (enable-console-print!))
 
-#?(:clj
-; grammar
-(defmacro grammar-symbol [name_]
-  `(defn ~name_
-     ([~'value & [~'payload]] {:type ~(keyword name_) :value ~'value :payload ~'payload})
-     )
-  ))
 
 (def ^:dynamic *regexpforobj-debug1* false)
 
