@@ -1,6 +1,13 @@
 (ns regexpforobj.core
   #?(
      :cljs
+     (:require 
+                [clojure.string]
+                [clojure.walk]
+                )
+     )
+  #?(
+     :cljs
      (:require-macros [regexpforobj.core :refer [grammar-symbol]])
 
      :clj
@@ -103,7 +110,9 @@
                              (print-with-level-ident font/blue-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
                                ))
-                      ))
+                      )
+                  :cljs nil
+                  )
         result 
   (let [
         process (fn [g x] (process g x (inc level)))

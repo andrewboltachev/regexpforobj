@@ -9,6 +9,7 @@
                   [adzerk/boot-reload        "0.4.11"]
                   [fipp "0.5.2"]
                   [adzerk/bootlaces          "0.1.10"]
+                  [adzerk/boot-cljs "1.7.228-1"]
                   [org.clojure/core.typed "0.3.18"]
                   [aprint "0.1.3"]
                   [io.aviso/pretty "0.1.24"]
@@ -18,6 +19,9 @@
 
 
 (require '[adzerk.bootlaces :refer :all])
+
+(require '[adzerk.boot-cljs :refer [cljs]])
+
 
 (def +version+ "1.0.0-alpha2-SNAPSHOT")
 
