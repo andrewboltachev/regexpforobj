@@ -19,12 +19,13 @@
 #?(:cljs
     (enable-console-print!))
 
+#?(:clj
 ; grammar
 (defmacro grammar-symbol [name_]
   `(defn ~name_
      ([~'value & [~'payload]] {:type ~(keyword name_) :value ~'value :payload ~'payload})
      )
-  )
+  ))
 
 (def ^:dynamic *regexpforobj-debug1* false)
 
