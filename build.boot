@@ -23,7 +23,7 @@
 (require '[adzerk.boot-cljs :refer [cljs]])
 
 
-(def +version+ "1.0.0-alpha2-SNAPSHOT")
+(def +version+ "1.0.0-alpha3-SNAPSHOT")
 
 (bootlaces! +version+)
 
