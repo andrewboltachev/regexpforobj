@@ -13,9 +13,9 @@
      (require
       '[io.aviso.ansi :as font]
        )
+      (use 'aprint.core)
     )
 
-      (use 'aprint.core)
 #?(:cljs
     (enable-console-print!))
 
@@ -88,19 +88,19 @@
                                                                    (inc level)
                                                                    level-ident
                                                                    (clojure.string/trim line)
-                                                                   (when colored font/reset-font)
+                                                                   #?(:clj (when colored font/reset-font))
                                                                    ))
                                                    (clojure.string/split-lines lines)
                                                    ))))
                     )
-        _ (when *regexpforobj-debug1*
+        _ #?(:clj (when *regexpforobj-debug1*
                              (print-with-level-ident font/green-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
                                ))
                              (print-with-level-ident font/blue-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty x))
                                ))
-                      )
+                      ))
         result 
   (let [
         process (fn [g x] (process g x (inc level)))
@@ -192,11 +192,11 @@
         )
         )
   ))]
-(when *regexpforobj-debug1*
+#?(:clj (when *regexpforobj-debug1*
                              (print-with-level-ident font/red-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty result))
                                ))
-  )
+  ))
 result
 ))
 
