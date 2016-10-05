@@ -13,6 +13,8 @@
      (require
       '[io.aviso.ansi :as font]
        )
+    )
+#?(:clj
       (use 'aprint.core)
     )
 
