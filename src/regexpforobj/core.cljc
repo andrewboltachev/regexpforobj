@@ -85,7 +85,10 @@
                ))
 
 (defn process [g x & [level]]
-  (let [colored true
+  (let [SeqNode (fn [& args]
+                  (with-meta (apply SeqNode args) (meta g))
+                  )
+        colored true
         level (or level 0)
         level-ident (apply str (repeat (* (inc level) 4) " "))
         print-with-level-ident (fn [color lines]
