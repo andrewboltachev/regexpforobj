@@ -68,7 +68,15 @@
                  (map? m)
                  (contains? m :type)
                  )
-               (let [r (list (symbol (name (:type m))) (grammar_pretty (:value m)))
+               (let [key-repr (if (keyword? (:type m))
+                           (symbol (name (:type m)))
+                           (str (:type m)) ;; fallback
+                           )
+                     
+                     r (if (nil? (:value m))
+                             key-repr
+                             (list key-repr
+                         (grammar_pretty (:value m))))
                      p (:payload m)]
                  (if
                    (nil? p)
