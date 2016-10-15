@@ -70,7 +70,7 @@
                  )
                (let [key-repr (if (keyword? (:type m))
                            (symbol (name (:type m)))
-                           (str (:type m)) ;; fallback
+                           (:type m) ;; fallback, whatever it is
                            )
                      
                      r (if (nil? (:value m))
