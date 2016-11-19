@@ -6,13 +6,13 @@
   )
 
 
-(grammar-symbol Plus)
+;(grammar-symbol Plus)
 
 (require '[fipp.edn :refer (pprint) :rename {pprint fipp}])
 (def s1 (Seq [(Char "ref") (Star (Char "ref"))]))
 (def c1 (Seq [(Char 'x) (Star (Char 'x))]))
 (def c2 (Seq ['x (Star 'x)]))
-(def r1 [(Seq ['x (Star 'x)]) (Plus 'x)])
+;(def r1 [(Seq ['x (Star 'x)]) (Plus 'x)])
 
 
 (def s2 (Seq [
@@ -398,4 +398,12 @@
                )
             )
   ))
+
+  (binding [*regexpforobj-debug1* true]
+  (let [g (Plus (Char "a"))]
+    (println (run g [(InputChar "a") (InputChar "a") (InputChar "a")]))
+    (println (run g [(InputChar "a")]))
+    (println (run g []))
+    )
+    )
   )

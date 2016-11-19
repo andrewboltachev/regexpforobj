@@ -66,6 +66,7 @@
       (fn [request]
       (doseq [ns-sym (modified-namespaces)]
         (require ns-sym :reload))
+        (require 'regexpforobj.core :reload)
       (handler request)))))
 
 (deftask dev

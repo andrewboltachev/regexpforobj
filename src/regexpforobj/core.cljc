@@ -39,6 +39,7 @@
 (grammar-symbol Seq)
 (grammar-symbol Or)
 (grammar-symbol Star)
+(grammar-symbol Plus)
 (grammar-symbol MayBe)
 
 
@@ -182,6 +183,36 @@
         (let [rr (process (first g1) x)]
           (recur (rest g1) (conj result rr)))
         )
+      )
+
+    (= (:type g) :Plus)
+    (let [r (process (:value g) x)]
+      (println :Plus r)
+      (if (is_parsing_error? r)
+        r
+        (let [x (last r)
+              a (first r)
+              ]
+          (if
+            (empty? x)
+            [(SeqNode (cons x []) (:payload g)) x]
+            (loop [g1 (:value g)
+                  x1 x
+                  result []
+                  ]
+              (let [r (process g1 x1)]
+                (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
+                  (do
+                    ;(apply print (repeat level "\t"))
+                    ;(println "star error1" r x1 (:payload g))
+                    [(SeqNode (cons a (vec result)) (:payload g)) x1])
+                  (recur g1 (last r) (conj result (first r)))
+                  )
+                )
+              )
+            )
+          )
+        ) 
       )
 
     (= (:type g) :Star)
