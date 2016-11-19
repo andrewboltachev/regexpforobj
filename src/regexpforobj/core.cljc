@@ -187,7 +187,6 @@
 
     (= (:type g) :Plus)
     (let [r (process (:value g) x)]
-      (println :Plus r)
       (if (is_parsing_error? r)
         r
         (let [x (last r)
