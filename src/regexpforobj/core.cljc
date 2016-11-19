@@ -350,3 +350,68 @@ result
         s (list 'let (vec (mapcat identity w)))]
     (concat s [(first (last w))])))
 
+
+(defn ^:private Y [f] ((fn [x] (x x)) (fn [x] (f (fn [& args] (apply (x x) args))))))
+
+
+(def process1 (fn [r]
+           (clojure.walk/postwalk
+             (fn [x]
+               (if-let [f (-> x meta :process1)]
+                 (do
+                   (vary-meta (f x) dissoc :process1)
+                   )
+                 x
+                 )
+               )
+             r
+             )))
+
+(def run1 (fn [g x]
+       (let [r (run g x)]
+         (if (is_parsing_error? r)
+           r
+           (process1 r)
+           )
+         )
+       ))
+
+(def apply-payload-fn (fn [r]
+           (clojure.walk/postwalk
+             (fn [x]
+               (if-let [f (-> x :payload :fn)]
+                 (let [v (f x)
+                       x1 (if
+                     (map? v)
+                     (dissoc v :fn)
+                     v
+                     )]
+                   (if-let [the-type
+                     (-> x :payload :type)]
+                     {:type the-type :value x1}
+                     x1
+                     )
+                   )
+                 x
+                 )
+               )
+             r
+             )))
+
+
+(def refo-concat (Y (fn [f] (fn [x]
+                (cond
+                  (map? x)
+                  (f (if (= (:type x) :InputChar)
+                    (:payload x)
+                    (:value x)
+                    ))
+
+                  (sequential? x)
+                  (apply str (map #(f %) x))
+
+                  :else
+                  x
+                  )
+                ))))
+
