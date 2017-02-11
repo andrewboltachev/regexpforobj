@@ -411,7 +411,7 @@
   (binding [*regexpforobj-debug1* true]
   (fipp
     (grammar_pretty
-      (run {:root (Or [(Char "w")
+      (run {:root (Or [(Char (partial = "w"))
                         (Seq [
                               (Char "[")
                               :root

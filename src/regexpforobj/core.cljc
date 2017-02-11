@@ -142,8 +142,12 @@
     (= (:type g) :Char)
     (let [c (first x)] (if c
                          (let [vc (:value c)
-                               vg (:value g)]
-                           (if (= vg vc)
+                               vg (:value g)
+                               
+                               condition (if (fn? vg)
+                                           (vg vc)
+                                           (= vg vc))]
+                           (if condition
                              [c (rest x)]
                              (ParsingError :char {:expected vg :found vc})
                              ))
