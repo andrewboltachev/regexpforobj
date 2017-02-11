@@ -93,8 +93,9 @@
                m
                ))
 
-(defn process [g x & [level]]
-  (let [SeqNode (fn [& args]
+(defn process [gs g x level]
+  (let [
+        SeqNode (fn [& args]
                   (with-meta (apply SeqNode args) (meta g))
                   )
         colored true
@@ -112,6 +113,15 @@
                                                    (clojure.string/split-lines lines)
                                                    ))))
                     )
+
+        g (if
+            (keyword? g)
+            (let [mapped-g (gs g)]
+              (print-with-level-ident font/yellow-font (str "mapping g " (pr-str g) " " (pr-str (grammar_pretty mapped-g))))
+              mapped-g)
+            (do
+              (print-with-level-ident font/yellow-font (str "keeping g as is " (pr-str g)))
+              g))
         _ #?(:clj (when *regexpforobj-debug1*
                              (print-with-level-ident font/green-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
@@ -124,7 +134,7 @@
                   )
         result 
   (let [
-        process (fn [g x] (process g x (inc level)))
+        process (fn [gs g x] (process gs g x (inc level)))
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -148,7 +158,7 @@
       (if (empty? g1)
         [(SeqNode result (:payload g)) x1]
         ;(if-not (empty? x1)
-          (let [returned (process (first g1) x1)]
+          (let [returned (process gs (first g1) x1)]
             (if (is_parsing_error? returned)
               returned
               (let [
@@ -162,7 +172,7 @@
           ;)
         )
       )
-    ;(SeqNode [(process (first (:value g)) x)])
+    ;(SeqNode [(process gs (first (:value g)) x)])
 
     (= (:type g) :Or)
     (loop [g1 (:value g)
@@ -180,13 +190,13 @@
               )
             (ParsingError :or-fail)
           ))
-        (let [rr (process (first g1) x)]
+        (let [rr (process gs (first g1) x)]
           (recur (rest g1) (conj result rr)))
         )
       )
 
     (= (:type g) :Plus)
-    (let [r (process (:value g) x)]
+    (let [r (process gs (:value g) x)]
       (if (is_parsing_error? r)
         r
         (let [x (last r)
@@ -199,7 +209,7 @@
                   x1 x
                   result []
                   ]
-              (let [r (process g1 x1)]
+              (let [r (process gs g1 x1)]
                 (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
                   (do
                     ;(apply print (repeat level "\t"))
@@ -222,7 +232,7 @@
             x1 x
             result []
              ]
-        (let [r (process g1 x1)]
+        (let [r (process gs g1 x1)]
           (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
             (do
               ;(apply print (repeat level "\t"))
@@ -235,7 +245,7 @@
       )
 
     (= (:type g) :MayBe)
-    (let [r (process (:value g) x)]
+    (let [r (process gs (:value g) x)]
       (if (is_parsing_error? r)
         [(SeqNode [] (:payload g)) x]
         [(SeqNode (first r) (:payload g)) (last r)]
@@ -250,15 +260,17 @@
 result
 ))
 
-(defn run [g x]
-  (let [returned (process g x)]
-    (if (is_parsing_error? returned)
-      returned
-      (let [[result tail] returned]
-        (if (= (count tail) 0)
-          result
-          (ParsingError :tail {:tail tail})
-          )))))
+(defn run
+  ([g x]
+   (process {:root g} :root x 1))
+  ([gs g x]
+    (let [returned (process gs g x 1)]
+      (if (is_parsing_error? returned)
+        returned
+        (let [[result tail] returned]
+          (if (= (count tail) 0)
+            result
+            (ParsingError :tail {:tail tail})))))))
 
 ;(defmacro mymacro1 [a] `(defn ~a [x11] (+ 1 x11)))
 

@@ -365,7 +365,7 @@
   )
 
 (defn main []
-  (
+  #_(
    fipp (grammar_pretty
    ;identity
     #_(let [c2 (add-routes-to-grammar c1)
@@ -392,18 +392,35 @@
    #_(apply-rule r1 s2)
    ;(subvec glc 0 1)
           ;(run2 g x)
-          (binding [*regexpforobj-debug1* true]
+          #_(binding [*regexpforobj-debug1* true]
           (run (Seq [(Char "a") (Char "b") (Char "c")])
                [(InputChar "a") (InputChar "b") (InputChar "c")]
                )
             )
   ))
 
-  (binding [*regexpforobj-debug1* true]
+  #_(binding [*regexpforobj-debug1* true]
   (let [g (Plus (Char "a"))]
     (println (run g [(InputChar "a") (InputChar "a") (InputChar "a")]))
     (println (run g [(InputChar "a")]))
     (println (run g []))
     )
     )
+
+
+  (binding [*regexpforobj-debug1* true]
+  (fipp
+    (grammar_pretty
+      (run {:root (Or [(Char "w")
+                        (Seq [
+                              (Char "[")
+                              :root
+                              (Char "]")
+                              ]
+                          )
+                        ])}
+           :root
+            (map (comp InputChar str)
+              (apply list "[[[[w]]]]"))
+            ))))
   )
