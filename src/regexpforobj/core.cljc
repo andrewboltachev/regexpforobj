@@ -95,6 +95,7 @@
 
 (defn process [gs g x level]
   (let [
+g-original g
         SeqNode (fn [& args]
                   (with-meta (apply SeqNode args) (meta g))
                   )
@@ -117,11 +118,12 @@
         g (if
             (keyword? g)
             (let [mapped-g (gs g)]
-              (print-with-level-ident font/yellow-font (str "mapping g " (pr-str g) " " (pr-str (grammar_pretty mapped-g))))
+
+        #?(:clj (when *regexpforobj-debug1*
+              (print-with-level-ident font/yellow-font (str "mapping g " (pr-str g))))
+                :cljs nil)
               mapped-g)
-            (do
-              (print-with-level-ident font/yellow-font (str "keeping g as is " (pr-str g)))
-              g))
+              g)
         _ #?(:clj (when *regexpforobj-debug1*
                              (print-with-level-ident font/green-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty g))
@@ -132,7 +134,11 @@
                       )
                   :cljs nil
                   )
-        result 
+        ]
+
+    (if g
+(let [
+      result 
   (let [
         process (fn [gs g x] (process gs g x (inc level)))
         ]
@@ -255,13 +261,20 @@
         [(SeqNode (first r) (:payload g)) (last r)]
         )
         )
-  ))]
+  ))
+      ]
+
 #?(:clj (when *regexpforobj-debug1*
                              (print-with-level-ident font/red-font (with-out-str
                                (clojure.pprint/pprint (grammar_pretty result))
                                ))
   ))
 result
+)
+{:error :no-such-alias
+ :context g-original}
+)
+
 ))
 
 (defn run
