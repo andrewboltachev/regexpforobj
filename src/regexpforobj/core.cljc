@@ -103,7 +103,7 @@ g-original g
         level (or level 0)
         level-ident (apply str (repeat (* (inc level) 4) " "))
         print-with-level-ident (fn [color lines]
-                    (doall (map println
+                    (identity (doall (map println
                                                    (filter #(-> % empty? not)
                                                       (map (fn [line] (str (when colored color)
                                                                    (inc level)
@@ -112,7 +112,7 @@ g-original g
                                                                    #?(:clj (when colored font/reset-font))
                                                                    ))
                                                    (clojure.string/split-lines lines)
-                                                   ))))
+                                                   )))))
                     )
 
         g (if
@@ -125,11 +125,11 @@ g-original g
               mapped-g)
               g)
         _ #?(:clj (when *regexpforobj-debug1*
-                             (print-with-level-ident font/green-font (with-out-str
-                               (clojure.pprint/pprint (grammar_pretty g))
+                             (print-with-level-ident font/green-font 
+                               (pr-str (grammar_pretty g)
                                ))
-                             (print-with-level-ident font/blue-font (with-out-str
-                               (clojure.pprint/pprint (grammar_pretty x))
+                             (print-with-level-ident font/blue-font 
+                               (pr-str (grammar_pretty x)
                                ))
                       )
                   :cljs nil
@@ -275,9 +275,9 @@ g-original g
       ]
 
 #?(:clj (when *regexpforobj-debug1*
-                             (print-with-level-ident font/red-font (with-out-str
-                               (clojure.pprint/pprint (grammar_pretty result))
-                               ))
+                             (print-with-level-ident font/red-font 
+                               (pr-str (grammar_pretty result))
+                               )
   ))
 result
 )
