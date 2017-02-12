@@ -219,7 +219,7 @@ g-original g
               ]
           (if
             (empty? x)
-            [(SeqNode (cons x []) (:payload g)) x]
+            [(SeqNode (cons a []) (:payload g)) x]
             (loop [g1 (:value g)
                   x1 x
                   result []

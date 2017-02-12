@@ -425,4 +425,7 @@
             (map (comp InputChar str)
               (apply list "[[[[w]]]]"))
             ))))
+
+  (println
+    (run (Plus (Char \w)) (map InputChar "w")))
   )
