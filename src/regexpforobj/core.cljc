@@ -266,6 +266,7 @@ g-original g
     (= (:type g) :MayBe)
     (let [r (process gs (:value g) x)]
       (if (incorrect_alias_detected r)
+        r
       (if (is_parsing_error? r)
         [(SeqNode [] (:payload g)) x]
         [(SeqNode (first r) (:payload g)) (last r)]
