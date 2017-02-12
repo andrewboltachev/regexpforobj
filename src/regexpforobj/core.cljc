@@ -203,7 +203,7 @@ g-original g
             (let [rr (first r)]
               [(SeqNode (first rr) (:payload g)) (last rr)]
               )
-            (ParsingError :or-fail)
+            (ParsingError :or-fail result)
           )))
         (let [rr (process gs (first g1) x)]
           (recur (rest g1) (conj result rr)))
