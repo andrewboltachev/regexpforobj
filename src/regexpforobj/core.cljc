@@ -137,7 +137,7 @@ g-original g
         ]
 
     (if g
-(let [incorrect_alias_detected #(and (is_parsing_error? %) (-> % :type (= :no-such-alias)))
+(let [incorrect_alias_detected #(and (is_parsing_error? %) (-> % :error (= :no-such-alias)))
       result 
   (let [
         process (fn [gs g x] (process gs g x (inc level)))

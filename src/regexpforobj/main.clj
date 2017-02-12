@@ -411,7 +411,9 @@
   (binding [*regexpforobj-debug1* true]
   (fipp
     (grammar_pretty
-      (run {:root (Or [(Char (partial = "w"))
+      (run {
+            :root1 (Or [:foo :bar])
+            :root (Or [(Char (partial = "w"))
                         (Seq [
                               (Char "[")
                               :root
@@ -419,7 +421,7 @@
                               ]
                           )
                         ])}
-           :root
+           :root1
             (map (comp InputChar str)
               (apply list "[[[[w]]]]"))
             ))))
