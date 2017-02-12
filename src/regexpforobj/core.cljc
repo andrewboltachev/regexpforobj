@@ -137,7 +137,7 @@ g-original g
         ]
 
     (if g
-(let [
+(let [incorrect_alias_detected #(and (is_parsing_error? %) (-> % :type (= :no-such-alias)))
       result 
   (let [
         process (fn [gs g x] (process gs g x (inc level)))
@@ -169,13 +169,16 @@ g-original g
         [(SeqNode result (:payload g)) x1]
         ;(if-not (empty? x1)
           (let [returned (process gs (first g1) x1)]
-            (if (is_parsing_error? returned)
+            (if (incorrect_alias_detected returned)
               returned
-              (let [
+              (if (is_parsing_error? returned)
+                returned
+                (let [
                     [new_v new_x] returned
                     ]
                 (recur (rest g1) new_x (conj result new_v))
                 )
+              )
               )
             )
             ;(ParsingError :too-short-seq {:rest g1})
@@ -194,12 +197,14 @@ g-original g
                                    result))
                          ]
 
+          (if-let [e (first (filter incorrect_alias_detected result))]
+            e
           (if-not (empty? r)
             (let [rr (first r)]
               [(SeqNode (first rr) (:payload g)) (last rr)]
               )
             (ParsingError :or-fail)
-          ))
+          )))
         (let [rr (process gs (first g1) x)]
           (recur (rest g1) (conj result rr)))
         )
@@ -221,10 +226,12 @@ g-original g
                   ]
               (let [r (process gs g1 x1)]
                 (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
+                  (if (incorrect_alias_detected r)
+                    r
                   (do
                     ;(apply print (repeat level "\t"))
                     ;(println "star error1" r x1 (:payload g))
-                    [(SeqNode (cons a (vec result)) (:payload g)) x1])
+                    [(SeqNode (cons a (vec result)) (:payload g)) x1]))
                   (recur g1 (last r) (conj result (first r)))
                   )
                 )
@@ -244,10 +251,12 @@ g-original g
              ]
         (let [r (process gs g1 x1)]
           (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
+            (if (incorrect_alias_detected r)
+              r
             (do
               ;(apply print (repeat level "\t"))
               ;(println "star error1" r x1 (:payload g))
-              [(SeqNode result (:payload g)) x1])
+              [(SeqNode result (:payload g)) x1]))
             (recur g1 (last r) (conj result (first r)))
             )
           )
@@ -256,11 +265,12 @@ g-original g
 
     (= (:type g) :MayBe)
     (let [r (process gs (:value g) x)]
+      (if (incorrect_alias_detected r)
       (if (is_parsing_error? r)
         [(SeqNode [] (:payload g)) x]
         [(SeqNode (first r) (:payload g)) (last r)]
         )
-        )
+        ))
   ))
       ]
 
