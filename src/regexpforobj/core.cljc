@@ -162,8 +162,8 @@ g-original g
       )
 
     (= (:type g) :RegExp)
-    (if-let [[a new-x] (re-matches (:value g) x)]
-      [a new-x]
+    (if-let [a (re-find (:value g) x)]
+      [a (subs x (count a))]
       (ParsingError :regexp-mismatch {:expected (:value g) :found x}))
 
     (= (:type g) :Seq)
