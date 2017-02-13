@@ -36,6 +36,7 @@
 (def ^:dynamic *regexpforobj-debug1* false)
 
 (grammar-symbol Char)
+(grammar-symbol RegExp)
 (grammar-symbol Seq)
 (grammar-symbol Or)
 (grammar-symbol Star)
@@ -159,6 +160,11 @@ g-original g
                          (ParsingError :too-short-char {:rest g})
                          )
       )
+
+    (= (:type g) :RegExp)
+    (if-let [[a new-x] (re-matches (:value g) x)]
+      [a new-x]
+      (ParsingError :regexp-mismatch {:expected (:value g) :found x}))
 
     (= (:type g) :Seq)
     (loop [g1 (:value g)

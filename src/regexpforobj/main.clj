@@ -426,6 +426,22 @@
               (apply list "[[[[w]]]]"))
             ))))
 
+  (println "this is RegExp")
+  (binding [*regexpforobj-debug1* true]
+  (fipp
+    (grammar_pretty
+      (run {
+            :root (Or [(RegExp #"(w)(.*)")
+                        (Seq [
+                              (Char "[")
+                              :root
+                              (Char "]")
+                              ]
+                          )
+                        ])}
+           :root
+            "[[[[w]]]]"))))
+
   (println
     (run (Plus (Char \w)) (map InputChar "w")))
   )
