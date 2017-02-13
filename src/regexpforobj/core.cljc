@@ -93,7 +93,7 @@
                m
                ))
 
-(defn process [gs g x level]
+(defn process [gs g x level data-fn]
   (let [
 g-original g
         SeqNode (fn [& args]
@@ -139,8 +139,7 @@ g-original g
     (if g
 (let [incorrect_alias_detected #(and (is_parsing_error? %) (-> % :error (= :no-such-alias)))
       result 
-  (let [
-        process (fn [gs g x] (process gs g x (inc level)))
+  (let [process (fn [g x] (process gs g x (inc level) data-fn))
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -168,7 +167,7 @@ g-original g
       (if (empty? g1)
         [(SeqNode result (:payload g)) x1]
         ;(if-not (empty? x1)
-          (let [returned (process gs (first g1) x1)]
+          (let [returned (process (first g1) x1)]
             (if (incorrect_alias_detected returned)
               returned
               (if (is_parsing_error? returned)
@@ -185,7 +184,7 @@ g-original g
           ;)
         )
       )
-    ;(SeqNode [(process gs (first (:value g)) x)])
+    ;(SeqNode [(process (first (:value g)) x)])
 
     (= (:type g) :Or)
     (loop [g1 (:value g)
@@ -206,13 +205,13 @@ g-original g
             (ParsingError :or-fail {:result result
                                     :g g-original})
           )))
-        (let [rr (process gs (first g1) x)]
+        (let [rr (process (first g1) x)]
           (recur (rest g1) (conj result rr)))
         )
       )
 
     (= (:type g) :Plus)
-    (let [r (process gs (:value g) x)]
+    (let [r (process (:value g) x)]
       (if (is_parsing_error? r)
         r
         (let [x (last r)
@@ -225,7 +224,7 @@ g-original g
                   x1 x
                   result []
                   ]
-              (let [r (process gs g1 x1)]
+              (let [r (process g1 x1)]
                 (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
                   (if (incorrect_alias_detected r)
                     r
@@ -250,7 +249,7 @@ g-original g
             x1 x
             result []
              ]
-        (let [r (process gs g1 x1)]
+        (let [r (process g1 x1)]
           (if (or (empty? x1) (is_parsing_error? r) (= x1 (last r)))
             (if (incorrect_alias_detected r)
               r
@@ -265,7 +264,7 @@ g-original g
       )
 
     (= (:type g) :MayBe)
-    (let [r (process gs (:value g) x)]
+    (let [r (process (:value g) x)]
       (if (incorrect_alias_detected r)
         r
       (if (is_parsing_error? r)
@@ -291,9 +290,9 @@ result
 
 (defn run
   ([g x]
-   (process {:root g} :root x 1))
+   (run {:root g} :root x))
   ([gs g x]
-    (let [returned (process gs g x 1)]
+    (let [returned (process gs g x 1 nil)]
       (if (is_parsing_error? returned)
         returned
         (let [[result tail] returned]
