@@ -35,6 +35,8 @@
 
 (def ^:dynamic *regexpforobj-debug1* false)
 
+(def process-calls (atom nil))
+
 (grammar-symbol Char)
 (grammar-symbol RegExp)
 (grammar-symbol Seq)
@@ -95,6 +97,7 @@
                ))
 
 (defn process [gs g x level data-fn]
+  (swap! process-calls inc)
   (let [
 g-original g
         SeqNode (fn [& args]
@@ -298,6 +301,7 @@ result
   ([g x]
    (run {:root g} :root x))
   ([gs g x]
+   (reset! process-calls 0)
     (let [returned (process gs g x 1 nil)]
       (if (is_parsing_error? returned)
         returned
