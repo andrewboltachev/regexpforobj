@@ -96,7 +96,8 @@
                m
                ))
 
-(defn process [gs g x level data-fn]
+(defn process-Y [process-fn]
+  (fn [gs g x level data-fn]
   (swap! process-calls inc)
   (let [
 g-original g
@@ -143,7 +144,7 @@ g-original g
     (if g
 (let [incorrect_alias_detected #(and (is_parsing_error? %) (-> % :error (= :no-such-alias)))
       result 
-  (let [process (fn [g x] (process gs g x (inc level) data-fn))
+  (let [process (fn [g x] (process-fn gs g x (inc level) data-fn))
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -295,20 +296,30 @@ result
  :context g-original}
 )
 
-))
+)))
 
-(defn run
-  ([g x]
-   (run {:root g} :root x))
-  ([gs g x]
+(defn Y [f] ((fn [x] (x x)) (fn [x] (f (fn [& args] (apply (x x) args))))))
+
+(def process (Y process-Y))
+
+(defn run-p
+  [process-fn]
+  (fn
+  [& args]
+   (let [[gs g x]
+   (if (= (count args) 2)
+     [{:root (first args)} :root (second args)]
+     args)]
    (reset! process-calls 0)
-    (let [returned (process gs g x 1 nil)]
+    (let [returned (process-fn gs g x 1 nil)]
       (if (is_parsing_error? returned)
         returned
         (let [[result tail] returned]
           (if (= (count tail) 0)
             result
-            (ParsingError :tail {:tail tail})))))))
+            (ParsingError :tail {:tail tail}))))))))
+
+(def run (run-p process))
 
 ;(defmacro mymacro1 [a] `(defn ~a [x11] (+ 1 x11)))
 
