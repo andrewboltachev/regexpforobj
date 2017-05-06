@@ -44,6 +44,8 @@
 (grammar-symbol Star)
 (grammar-symbol Plus)
 (grammar-symbol MayBe)
+(grammar-symbol RawChar)
+(grammar-symbol GrammarChar)
 
 
 ; results
@@ -95,6 +97,23 @@
                :else
                m
                ))
+
+(defn run-p
+  [process-fn]
+  (fn
+  [& args]
+   (let [[gs g x]
+   (if (= (count args) 2)
+     [{:root (first args)} :root (second args)]
+     args)]
+   (reset! process-calls 0)
+    (let [returned (process-fn gs g x 1 nil)]
+      (if (is_parsing_error? returned)
+        returned
+        (let [[result tail] returned]
+          (if (= (count tail) 0)
+            result
+            (ParsingError :tail {:tail tail}))))))))
 
 (defn process-Y [process-fn]
   (fn [gs g x level data-fn]
@@ -149,6 +168,13 @@ g-original g
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
   (cond
+    (not (sequential? x))
+    ;(process g [x])
+    (ParsingError
+      :not-sequential-argument
+      {:x x
+       :g g})
+
     (= (:type g) :Char)
     (let [c (first x)] (if c
                          (let [vc (:value c)
@@ -164,6 +190,26 @@ g-original g
                          (ParsingError :too-short-char {:rest g})
                          )
       )
+
+    (= (:type g) :RawChar)
+    (let [c (first x)] (if c
+                         (let [vg (:value g)
+                               condition (vg c)]
+
+                           (if condition
+                             (if (is_parsing_error? condition) ; TODO: may be intersection???
+                               condition
+                               [condition (rest x)])
+                             (ParsingError :char {:expected vg :found c})
+                             ))
+                         (ParsingError :too-short-char {:rest g})
+                         )
+      )
+
+    (= (:type g) :GrammarChar)
+    (process
+      (RawChar
+        #((run-p process-fn) gs (:value g) %)) x)
 
     (= (:type g) :RegExp)
     (if-let [a (re-find (:value g) x)]
@@ -301,23 +347,6 @@ result
 (defn Y [f] ((fn [x] (x x)) (fn [x] (f (fn [& args] (apply (x x) args))))))
 
 (def process (Y process-Y))
-
-(defn run-p
-  [process-fn]
-  (fn
-  [& args]
-   (let [[gs g x]
-   (if (= (count args) 2)
-     [{:root (first args)} :root (second args)]
-     args)]
-   (reset! process-calls 0)
-    (let [returned (process-fn gs g x 1 nil)]
-      (if (is_parsing_error? returned)
-        returned
-        (let [[result tail] returned]
-          (if (= (count tail) 0)
-            result
-            (ParsingError :tail {:tail tail}))))))))
 
 (def run (run-p process))
 

@@ -408,8 +408,8 @@
     )
 
 
-  (binding [*regexpforobj-debug1* true]
-  (fipp
+  #_(binding [*regexpforobj-debug1* true]
+  #_(fipp
     (grammar_pretty
       (run {
             :root1 (Or [:foo :bar])
@@ -426,8 +426,8 @@
               (apply list "[[[[w]]]]"))
             ))))
 
-  (println "this is RegExp")
-  (binding [*regexpforobj-debug1* true]
+  #_(println "this is RegExp")
+  #_(binding [*regexpforobj-debug1* true]
   (fipp
     (grammar_pretty
       (run {
@@ -442,6 +442,37 @@
            :root
             "[[[[w]]]]"))))
 
-  (println
+  #_(println
     (run (Plus (Char \w)) (map InputChar "w")))
+
+
+  (binding [*regexpforobj-debug1* true]
+    (let [pred
+          (fn [p]
+            (fn [v]
+              (when (p v) v)
+              )
+            )
+          gs 
+         {:root (Star
+                    (Or
+                      [
+                      (RawChar (pred integer?))
+                      (GrammarChar
+                           (Seq [
+                                 (RawChar (pred (partial = :foo)))
+                                 (RawChar (pred (partial = :bar)))
+                                 ])
+                           )
+                       ]))
+                  ;(RawChar (partial = :foo))
+                  ;(RawChar (partial = :foo))
+                  ;(Star (RawChar integer?))
+                  }]
+    (println
+      (grammar_pretty
+        (run gs :root
+            (map identity
+                  [1 2 3 [:foo :bar]])
+            )))))
   )
