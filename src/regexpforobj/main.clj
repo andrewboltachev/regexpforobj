@@ -468,11 +468,18 @@
                   ;(RawChar (partial = :foo))
                   ;(RawChar (partial = :foo))
                   ;(Star (RawChar integer?))
+          :root2
+          (Star (Or [
+               ; ...
+               (RawChar (pred integer?))
+               (RawChar (pred keyword?))
+               (GrammarChar :root2)
+               ]))
                   }]
     (println
       (grammar_pretty
-        (run gs :root
+        (run gs :root2
             (map identity
-                  [1 2 3 [:foo :bar]])
+                  [1 2 3 [:foo [1 2] :bar]])
             )))))
   )
