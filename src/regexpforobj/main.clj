@@ -476,10 +476,24 @@
                (GrammarChar :root2)
                ]))
                   }]
+      (binding [*print-meta* true]
     (println
-      (grammar_pretty
-        (run gs :root2
-            (map identity
-                  [1 2 3 [:foo [1 2] :bar]])
-            )))))
-  )
+      (;grammar_pretty
+        identity
+        (->>
+          (run gs
+             :root2
+             [1 2 3 [:foo [1 2] :bar]]
+             :meta-mark :mark1)
+          ; ...
+          (clojure.walk/postwalk
+            (fn [value]
+              (if-let [k (and (map? value) (:mark1 value))]
+                ; ...
+                (let [value1 (:value value)]
+                  (if (true? k)
+                    value1
+                    {k value1}
+                    ))
+                value)))
+          )))))))

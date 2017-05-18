@@ -102,12 +102,12 @@
   [process-fn]
   (fn
   [& args]
-   (let [[gs g x]
+   (let [[gs g x & {:keys [] :as options}]
    (if (= (count args) 2)
      [{:root (first args)} :root (second args)]
      args)]
    (reset! process-calls 0)
-    (let [returned (process-fn gs g x 1 nil)]
+    (let [returned (apply process-fn gs g x 1 nil (flatten (seq options)))]
       (if (is_parsing_error? returned)
         returned
         (let [[result tail] returned]
@@ -116,12 +116,12 @@
             (ParsingError :tail {:tail tail}))))))))
 
 (defn process-Y [process-fn]
-  (fn [gs g x level data-fn]
+  (fn [gs g x level data-fn & {:keys [meta-mark] :as options}]
   (swap! process-calls inc)
   (let [
 g-original g
         SeqNode (fn [& args]
-                  (with-meta (apply SeqNode args) (meta g))
+                  (vary-meta (apply SeqNode args) merge (meta g))
                   )
         colored true
         level (or level 0)
@@ -163,7 +163,20 @@ g-original g
     (if g
 (let [incorrect_alias_detected #(and (is_parsing_error? %) (-> % :error (= :no-such-alias)))
       result 
-  (let [process (fn [g x] (process-fn gs g x (inc level) data-fn))
+  (let [process (fn [g x] (apply
+                            process-fn gs g x (inc level) data-fn
+                            (flatten (seq options))))
+
+        SeqNode
+        (if
+          (some? meta-mark)
+          (fn [& args]
+            (merge (apply SeqNode args)
+                   {meta-mark (if (keyword? g-original)
+                                   g-original true)}))
+          SeqNode
+          )
+
         ]
   ;(apply print (repeat level "\t"))
   ;(println "process" (grammar_pretty g) (vec (map grammar_pretty x)))
@@ -209,7 +222,11 @@ g-original g
     (= (:type g) :GrammarChar)
     (process
       (RawChar
-        #((run-p process-fn) gs (:value g) %)) x)
+        #(apply
+           (run-p process-fn) gs (:value g)
+           %
+           (flatten (seq options))
+           )) x)
 
     (= (:type g) :RegExp)
     (if-let [a (re-find (:value g) x)]
