@@ -1,9 +1,10 @@
 #!/usr/bin/env boot
 
+(def +version+ "1.0.0-alpha4-SNAPSHOT")
 
 (set-env!
   :project      'regexpforobj
-  :version      "0.1.0-SNAPSHOT"
+  :version      +version+
   :dependencies '[
                   [ns-tracker "0.2.2"]
                   [adzerk/boot-reload        "0.4.11"]
@@ -21,9 +22,6 @@
 (require '[adzerk.bootlaces :refer :all])
 
 (require '[adzerk.boot-cljs :refer [cljs]])
-
-
-(def +version+ "1.0.0-alpha3-SNAPSHOT")
 
 (bootlaces! +version+)
 
